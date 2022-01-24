@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-class Fib extends Components {
+class Fib extends Component {
     state = {
-        seenIndexes = [],
+        seenIndexes: [],
         values: {},
         index: ''
     };
@@ -20,7 +20,7 @@ class Fib extends Components {
 
     async fetchIndexes() {
         const seenIndexes = await axios.get('/api/values/all');
-        this.setState( {
+        this.setState({
             seenIndexes: seenIndexes.data
         });
     }
@@ -31,7 +31,7 @@ class Fib extends Components {
         await axios.post('/api/values', {
             index: this.state.index
         });
-        this.setState( { index: ''});
+        this.setState({ index: '' });
     };
 
     renderSeenIndexes() {
@@ -42,7 +42,7 @@ class Fib extends Components {
     renderValues() {
         const entries = [];
 
-        for(let key in this.state.values) {
+        for (let key in this.state.values) {
             entries.push(
                 <div key={key}>
                     For index {key} I calculated {this.state.values[key]}
@@ -54,7 +54,7 @@ class Fib extends Components {
 
     render() {
         return (
-            <div> 
+            <div>
                 <form onSubmit={this.handleSubmit}>
                     <label>Enter your index:</label>
                     <input
