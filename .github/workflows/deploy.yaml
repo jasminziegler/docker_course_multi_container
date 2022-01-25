@@ -1,0 +1,81 @@
+name: Deploy React app to GKE
+
+on:
+  workflow_run:
+    workflows: Frontend unit tests
+    branches: [main]
+    types: completed
+
+#env:
+#  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+#  GKE_CLUSTER: multi-cluster
+#  GKE_ZONE: europe-west4-a
+#  SHA: ${ GITHUB_SHA:10 }
+
+jobs:
+  publish-to-hub:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Publish to dockerhub
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Get the version
+      id: vars
+      run: echo ::set-output name=tag::$(echo ${GITHUB_SHA:10})
+    - name: Running deploy script
+      run: |-
+        docker build -t jz23/multi-client:latest -t jz23/multi-client:${{steps.vars.outputs.tag}} -f ./client/Dockerfile ./client
+        docker build -t jz23/multi-server:latest -t jz23/multi-server:${{steps.vars.outputs.tag}} -f ./server/Dockerfile ./server
+        docker build -t jz23/multi-worker:latest -t jz23/multi-worker:${{steps.vars.outputs.tag}} -f ./worker/Dockerfile ./worker
+        docker push jz23/multi-client:latest
+        docker push jz23/multi-server:latest
+        docker push jz23/multi-worker:latest
+        docker push jz23/multi-client:${{steps.vars.outputs.tag}}
+        docker push jz23/multi-server:${{steps.vars.outputs.tag}}
+        docker push jz23/multi-worker:${{steps.vars.outputs.tag}}
+
+  # setup-and-deploy-eb:
+  #   needs: publish-to-hub
+  #   name: Setup and deploy to Elastic Beanstalk
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+
+
+  # setup-and-deploy:
+  #   needs: publish-to-hub
+  #   name: Setup and Deploy to k8s
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+
+    # Setup gcloud CLI
+    # - uses: google-github-actions/setup-gcloud@master
+    #   with:
+    #     service_account_key: ${{ secrets.GKE_SA_KEY }}
+    #     project_id: ${{ secrets.GKE_PROJECT }}
+
+    # # Get the GKE credentials so we can deploy to the cluster
+    # - run: |-
+    #     gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+    # # Deploy sample image to the GKE cluster
+    # - name: Get the version
+    #   id: vars
+    #   run: echo ::set-output name=tag::$(echo ${GITHUB_SHA:10})
+    # - name: Deploy
+    #   run: |-
+    #     kubectl apply -f k8s/
+    #     kubectl set image deployments/server-deployment server=rowin1125/multi-server:${{steps.vars.outputs.tag}}
+    #     kubectl set image deployments/client-deployment client=rowin1125/multi-client:${{steps.vars.outputs.tag}}
+    #     kubectl set image deployments/worker-deployment worker=rowin1125/multi-worker:${{steps.vars.outputs.tag}}
+    #     kubectl get services -o wide
