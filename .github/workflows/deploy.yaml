@@ -31,7 +31,7 @@ jobs:
     - name: Running deploy script
       run: |-
         docker build -t jz23/multi-client:latest -t jz23/multi-client:${{steps.vars.outputs.tag}} -f ./client/Dockerfile ./client
-        docker build -t jz23/multi-nginx:latest -t jz23/multi-client:${{steps.vars.outputs.tag}} -f ./nginx/Dockerfile ./nginx
+        docker build -t jz23/multi-nginx:latest -t jz23/multi-nginx:${{steps.vars.outputs.tag}} -f ./nginx/Dockerfile ./nginx
         docker build -t jz23/multi-server:latest -t jz23/multi-server:${{steps.vars.outputs.tag}} -f ./server/Dockerfile ./server
         docker build -t jz23/multi-worker:latest -t jz23/multi-worker:${{steps.vars.outputs.tag}} -f ./worker/Dockerfile ./worker
         docker push jz23/multi-client:latest
@@ -42,6 +42,7 @@ jobs:
         docker push jz23/multi-nginx:${{steps.vars.outputs.tag}}
         docker push jz23/multi-server:${{steps.vars.outputs.tag}}
         docker push jz23/multi-worker:${{steps.vars.outputs.tag}}
+  # 
 
   # setup-and-deploy-eb:
   #   needs: publish-to-hub
