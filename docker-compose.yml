@@ -1,11 +1,11 @@
 version: "3"
 services:
   client:
-    image: "jz23/multi-client"
+    image: "jz23/multi-client:latest"
     mem_limit: 128m
     hostname: client
   server:
-    image: "jz23/multi-server"
+    image: "jz23/multi-server:latest"
     mem_limit: 128m
     hostname: api
     environment:
@@ -17,14 +17,14 @@ services:
       - PGPASSWORD=$PGPASSWORD
       - PGPORT=$PGPORT
   worker:
-    image: jz23/multi-worker
+    image: "jz23/multi-worker:latest"
     mem_limit: 128m
     hostname: worker
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
   nginx:
-    image: "jz23/multi-nginx"
+    image: "jz23/multi-nginx:latest"
     mem_limit: 128m
     hostname: nginx
     ports:

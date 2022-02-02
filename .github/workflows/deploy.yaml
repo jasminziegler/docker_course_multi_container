@@ -2,10 +2,10 @@ name: Deploy React app to Elastic Beanstalk with Elasticache + RDS
 
 #weiß nicht ob das so geht - kombiniert
 on:
-  workflow_run:
-    workflows: Frontend unit tests
-    branches: [main]
-    types: completed
+  # workflow_run:
+  #   workflows: Frontend unit tests
+  #   branches: [main]
+  #   types: completed
   push:
     branches:
     - main
@@ -18,7 +18,7 @@ on:
 
 jobs:
   publish-to-hub:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Publish to dockerhub
     runs-on: ubuntu-latest
 
