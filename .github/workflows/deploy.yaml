@@ -1,6 +1,10 @@
-name: Deploy React app to GKE
+name: Deploy React app to Elastic Beanstalk with Elasticache + RDS
 
+#weiß nicht ob das so geht - kombiniert
 on:
+  push:
+    branches:
+    - main
   workflow_run:
     workflows: Frontend unit tests
     branches: [main]
@@ -42,18 +46,39 @@ jobs:
         docker push jz23/multi-nginx:${{steps.vars.outputs.tag}}
         docker push jz23/multi-server:${{steps.vars.outputs.tag}}
         docker push jz23/multi-worker:${{steps.vars.outputs.tag}}
-  # 
 
-  # setup-and-deploy-eb:
-  #   needs: publish-to-hub
-  #   name: Setup and deploy to Elastic Beanstalk
-  #   runs-on: ubuntu-latest
+  setup-and-deploy-eb:
+    needs: publish-to-hub
+    name: Setup and deploy to Elastic Beanstalk
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v18
+      with:
+        region: us-east-1
+        application_name: multi-docker
+        environment_name: Multidocker-env
+        existing_bucket_name: elasticbeanstalk-us-east-1-941348794550
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
 
+    #from other section - prod_workflow
+    # - name: Deploy to EB
+    #   uses: einaregilsson/beanstalk-deploy@v18
+    #   with:
+    #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+    #     application_name: docker-course
+    #     environment_name: Dockercourse-env
+    #     existing_bucket_name: elasticbeanstalk-us-east-1-941348794550
+    #     region: us-east-1
+    #     version_label: ${{ github.sha }}
+    #     deployment_package: deploy.zip
+  
   # setup-and-deploy:
   #   needs: publish-to-hub
   #   name: Setup and Deploy to k8s
