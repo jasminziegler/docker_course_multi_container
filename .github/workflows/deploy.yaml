@@ -65,6 +65,7 @@ jobs:
         existing_bucket_name: elasticbeanstalk-us-east-1-941348794550
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+        version_label: ${{ github.sha }}
 
     #from other section - prod_workflow
     # - name: Deploy to EB
